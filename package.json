@@ -7,7 +7,9 @@
     "test": "camo-purge ; xo",
     "lint": "xo",
     "lintfix": "xo --fix",
-    "server": "node ./server/index.js"
+    "server": "node ./server/index.js",
+    "start-client": "react-scripts start",
+    "start": "cd server/public/react-page && yarn build && (cd server && yarn start)"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,8 @@
   },
   "homepage": "https://github.com/hobbyquaker/lgtv2",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mkdirp": "^0.5.1",
     "persist-path": "^1.0.2",

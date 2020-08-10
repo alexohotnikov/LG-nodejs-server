@@ -1,19 +1,30 @@
 var express = require('express')
 var app = express()
+var path = require('path')
+
+var cors = require('cors')
 var lgtv = require('../index.js')({
     url: 'ws://192.168.1.85:3000'
 });
 
+var bodyParser = require('body-parser');
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+
 // default static: 
-PORT = 3000
+PORT = 5000
 
 lgtv.on('connect', (err, res) => {
     console.log('LGTV conected')
 })
 
 
-app.get('/', function(req, res){
-    res.send('index route of app...')
+app.use(cors())
+
+app.use(bodyParser.json()); // support json encoded bodies
+
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, "public", "react-page", "build"))
 })
 
 app.get('/ping', function (req, res) {
@@ -30,10 +41,15 @@ app.get('/youtube', function (req, res) {
 
 
 app.get('/volume', function(req, res) {
+    lgtv.subscribe('ssap://audio/getVolume', function (err, resS) {
+        res.send({ volume: resS.volume, status: 200 })
+    })
+})
 
-    const { value =  6 } = req.query
-    lgtv.request('ssap://audio/setVolume', {volume: Number(value) })
-    res.send({ code: 200, value })
+app.post('/volume', urlencodedParser, function(req, res) {
+    lgtv.request('ssap://audio/volumeDown', function(err, succ) {
+        res.sendStatus(200)
+    });
 })
 
 app.get('/current', function(request, resolve)  {
@@ -46,3 +62,9 @@ app.get('/current', function(request, resolve)  {
   app.listen(PORT, () => {
       console.log(`Listen on port ${PORT}`)
   })
+
+
+
+  function actionInfo(type, value = null) {
+      console.log(`Trying do ${type}${value ? ` with value: ${value}` : ''}`)
+  }
